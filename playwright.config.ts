@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './end2end/tests',
+  testDir: './e2e/tests',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -40,7 +40,7 @@ export default defineConfig({
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
     // },
-    //
+
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },

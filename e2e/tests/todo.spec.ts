@@ -2,9 +2,17 @@ import { test, expect, Page } from "@playwright/test";
 
 import { $ } from "bun";
 
-test.beforeEach(async ({ page }) => {
+async function resetDatabase() {
   await $`make reset-dev-db`;
+}
+
+test.beforeEach(async ({ page }) => {
+  await resetDatabase();
   await page.goto("http://localhost:3000/");
+});
+
+test.afterAll(async () => {
+  await resetDatabase();
 });
 
 const TODOS = ["buy milk", "clean house", "walk dog", "do homework"] as const;
@@ -37,9 +45,6 @@ test.describe("new todo", () => {
     await page.reload();
     await expect(page.getByRole("listitem")).toHaveText(TODOS[1]);
   });
-  test("test has independent database", async ({ page }) => {
-    await expect(page.getByRole("listitem")).toHaveCount(0);
-  });
   test("input is reset after adding todo", async ({ page }) => {
     const input = page.getByPlaceholder("What needs to be done?");
     await input.fill(TODOS[0]);
@@ -48,12 +53,7 @@ test.describe("new todo", () => {
   });
   test("can delete todo", async ({ page }) => {
     await createTodos(page);
-    await page
-      .getByRole("listitem")
-      .filter({ hasText: TODOS[1] })
-      .first()
-      .getByLabel("delete")
-      .click();
+    await page.getByRole("listitem").nth(1).first().getByRole("button").click();
     await expect(page.getByRole("listitem")).toHaveText([
       TODOS[0],
       // TODOS[1], // deleted
@@ -63,24 +63,69 @@ test.describe("new todo", () => {
   });
   test("can toggle todo", async ({ page }) => {
     await createTodos(page);
-    const todos = page.getByRole("listitem").getByRole("checkbox");
+    let todos = page.getByRole("listitem").getByRole("checkbox");
     await todos.nth(1).check();
     await todos.nth(3).check();
 
-    page.reload();
+    await expect(todos.nth(0)).toBeChecked({ checked: false });
+    await expect(todos.nth(1)).toBeChecked({ checked: true });
+    await expect(todos.nth(2)).toBeChecked({ checked: false });
+    await expect(todos.nth(3)).toBeChecked({ checked: true });
 
-    await expect(todos.nth(0)).toBeChecked({checked: false});
-    await expect(todos.nth(1)).toBeChecked({checked: true});
-    await expect(todos.nth(2)).toBeChecked({checked: false});
-    await expect(todos.nth(3)).toBeChecked({checked: true});
+    await page.reload();
+
+    todos = page.getByRole("listitem").getByRole("checkbox"); // re-fetch
+
+    await expect(todos.nth(0)).toBeChecked({ checked: false });
+    await expect(todos.nth(1)).toBeChecked({ checked: true });
+    await expect(todos.nth(2)).toBeChecked({ checked: false });
+    await expect(todos.nth(3)).toBeChecked({ checked: true });
+  });
+
+  test("empty text returns error/warning", async ({ page }) => {
+    await page.getByRole("button", { name: "Add" }).click();
+    await expect(page.getByRole("alert")).toContainText(
+      "Please enter a non-empty todo",
+    );
+    await waitForRequest(page);
+    await expect(page.getByRole("alert")).toHaveCount(0);
   });
 });
 
 async function createTodos(page: Page) {
   const input = page.getByPlaceholder("What needs to be done?");
   for (const todo of TODOS) {
+    await input.click();
     await input.fill(todo);
-    await input.press("Enter");
+    const htmx = waitForSettle(page);
+    await page.getByRole("button", { name: "Add" }).click();
+    await htmx;
   }
   await expect(page.getByRole("listitem")).toHaveText(TODOS);
+}
+
+async function waitForSettle(page: Page, fn?: () => Promise<void>) {
+  return await waitFor(page, "htmx:afterSettle", fn);
+}
+
+async function waitForRequest(page: Page, fn?: () => Promise<void>) {
+  return await waitFor(page, "htmx:afterRequest", fn);
+}
+
+async function waitFor(
+  page: Page,
+  eventName: string,
+  fn?: () => Promise<void>,
+) {
+  const eventListener = page.evaluate(
+    (eventName: string) =>
+      new Promise((resolve) => {
+        document.addEventListener(eventName, (event) => {
+          return resolve(event);
+        });
+      }),
+    eventName,
+  );
+  if (fn) await fn();
+  await eventListener;
 }

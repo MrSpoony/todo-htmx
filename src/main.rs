@@ -25,6 +25,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/check/:id", post(check))
         .route("/add", post(add))
         .route("/delete/:id", delete(delete_todo))
+        .route("/empty", get(empty))
         .fallback(file_and_error_handler)
         .with_state(shared_state);
 

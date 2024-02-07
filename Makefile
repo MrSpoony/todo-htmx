@@ -2,7 +2,7 @@ DATABASE_URL=postgresql://postgres:password@localhost:5435/todos
 
 .PHONY: e2e
 e2e:
-	bunx --bun playwright test
+	bunx --bun playwright test --trace on
 
 .PHONY: reset-dev-db
 reset-dev-db:
@@ -14,7 +14,7 @@ start-dev-server:
 
 .PHONY: watch-dev-server
 watch-dev-server:
-	cargo watch -i end2end -x run
+	cargo watch -i e2e -x run
 
 .PHONY: tailwindcss
 tailwindcss:
