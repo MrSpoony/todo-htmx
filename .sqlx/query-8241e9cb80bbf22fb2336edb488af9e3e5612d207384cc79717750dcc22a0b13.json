@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE todo\n            SET is_completed = NOT is_completed\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8241e9cb80bbf22fb2336edb488af9e3e5612d207384cc79717750dcc22a0b13"
+}

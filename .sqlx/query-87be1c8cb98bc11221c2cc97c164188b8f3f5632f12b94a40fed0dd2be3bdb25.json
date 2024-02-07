@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO todo (title, is_completed)\n            VALUES ($1, $2) RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "is_completed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "creation_date",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "87be1c8cb98bc11221c2cc97c164188b8f3f5632f12b94a40fed0dd2be3bdb25"
+}

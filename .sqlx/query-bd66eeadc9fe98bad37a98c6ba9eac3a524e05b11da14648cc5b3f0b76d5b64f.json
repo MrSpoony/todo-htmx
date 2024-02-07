@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE\n            FROM todo\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bd66eeadc9fe98bad37a98c6ba9eac3a524e05b11da14648cc5b3f0b76d5b64f"
+}
