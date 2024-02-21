@@ -1,5 +1,18 @@
 # Todo HTMX
 
+This is just a simple example application to test out some new technologies.
+
+Technologies used:
+
+- HTMX
+- Playwright
+- Bun
+- Rust
+- Sqlx
+- Axum
+- dasyUI with tailwindcss
+- Postgres
+
 ## Running the project
 
 ```bash

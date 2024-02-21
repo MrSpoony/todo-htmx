@@ -71,7 +71,7 @@ pub async fn index(State(state): State<SharedState>) -> AppResult<Html<String>> 
     Ok(Html(
         render_to_string(move || {
             view! {
-                <!DOCTYPE html> 
+                <!DOCTYPE html>
                 <html lang="en">
                     <head>
                         <title>todo app</title>
@@ -121,8 +121,7 @@ pub async fn index(State(state): State<SharedState>) -> AppResult<Html<String>> 
                             id="alerts"
                             hx-ext="class-tools"
                             class="absolute bottom-0 right-0 p-5 w-full md:w-96 flex flex-col gap-1"
-                        >
-                        </div>
+                        ></div>
                         <div class="opacity-0"></div>
                     </body>
                 </html>
