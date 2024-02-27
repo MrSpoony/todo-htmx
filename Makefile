@@ -1,4 +1,4 @@
-DATABASE_URL=postgresql://postgres:password@localhost:5435/todos
+DATABASE_URL=postgresql://postgres:password@localhost:5432/todos
 
 .PHONY: e2e
 e2e:

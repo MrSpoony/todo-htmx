@@ -82,13 +82,27 @@ test.describe("new todo", () => {
     await expect(todos.nth(3)).toBeChecked({ checked: true });
   });
 
-  test("empty text returns error/warning", async ({ page }) => {
-    await page.getByRole("button", { name: "Add" }).click();
+  test("empty text returns warning alert", async ({ page }) => {
+    await waitForRequest(page, async () => {
+      await page.getByRole("button", { name: "Add" }).click();
+    });
     await expect(page.getByRole("alert")).toContainText(
       "Please enter a non-empty todo",
     );
-    await waitForRequest(page);
+  });
+
+  test("warning alert disappears after 5 seconds", async ({ page }) => {
+    await waitForRequest(page, async () => {
+      await page.getByRole("button", { name: "Add" }).click();
+    });
+    await expect(page.getByRole("alert")).toHaveCount(1);
+    const t = new Date();
+    await waitForRequest(page)
     await expect(page.getByRole("alert")).toHaveCount(0);
+    const t2 = new Date();
+    const timeTaken = t2.getTime() - t.getTime();
+    const diff = 5000 - timeTaken;
+    expect(diff).toBeLessThanOrEqual(1000);
   });
 });
 
@@ -97,9 +111,9 @@ async function createTodos(page: Page) {
   for (const todo of TODOS) {
     await input.click();
     await input.fill(todo);
-    const htmx = waitForSettle(page);
-    await page.getByRole("button", { name: "Add" }).click();
-    await htmx;
+    await waitForSettle(page, async () => {
+      await page.getByRole("button", { name: "Add" }).click();
+    });
   }
   await expect(page.getByRole("listitem")).toHaveText(TODOS);
 }
@@ -119,10 +133,14 @@ async function waitFor(
 ) {
   const eventListener = page.evaluate(
     (eventName: string) =>
-      new Promise((resolve) => {
-        document.addEventListener(eventName, (event) => {
-          return resolve(event);
-        });
+      new Promise<void>((resolve) => {
+        document.addEventListener(
+          eventName,
+          () => {
+            return resolve();
+          },
+          { once: true },
+        );
       }),
     eventName,
   );
