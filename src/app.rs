@@ -9,7 +9,7 @@ use serde::Deserialize;
 use sqlx::{query, query_as};
 
 use crate::{
-    errorresponse::{AppError, AppResult},
+    errorresponse::{AlertLevel, AppError, AppResult},
     state::{SharedState, Todo},
 };
 
@@ -190,7 +190,10 @@ pub async fn add(
     Form(todo_form): Form<TodoForm>,
 ) -> AppResult<Html<String>, impl IntoResponse> {
     if todo_form.title.trim().is_empty() {
-        return Err(AppError::new("Please enter a non-empty todo".to_string()));
+        return Err(AppError::new(
+            "Please enter a non-empty todo".to_string(),
+            AlertLevel::Warning,
+        ));
     }
     // TODO: handle empty input
     let todo = query_as!(

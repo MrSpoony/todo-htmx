@@ -4,12 +4,14 @@ use sqlx::postgres::PgPoolOptions;
 use dotenvy::dotenv;
 
 use axum::{routing::get, Router};
+use color_eyre::eyre::Result;
 use todo_htmx::app::*;
 use todo_htmx::fileserv::file_and_error_handler;
 use todo_htmx::state::{SharedState, State};
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<()> {
+    color_eyre::install()?;
     dotenv()?;
 
     let db_connection_url = std::env::var("DATABASE_URL")?;
