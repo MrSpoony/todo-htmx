@@ -1,10 +1,10 @@
-name: Playwright Tests
+name: Tests
 on:
   - push
   - pull_request
 
 jobs:
-  test:
+  playwright-test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
@@ -52,3 +52,19 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+  rust-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      SQLX_OFFLINE: true
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install stable toolchain
+      uses: dtolnay/rust-toolchain@stable
+    - name: Fetch dependencies
+      run: cargo fetch
+    - name: Build application
+      run: cargo build --offline --verbose
+    - name: Test application
+      run: cargo test --offline --verbose
